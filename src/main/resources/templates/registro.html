@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Agendar Nueva Cita</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="form-container">
+        <h2 class="mb-4">Agendar Nueva Cita</h2>
+
+        <div id="alertContainer"></div>
+
+        <form id="citaForm">
+            <!-- Consultorio -->
+            <div class="mb-3">
+                <label for="consultorio" class="form-label">Consultorio</label>
+                <select class="form-select" id="consultorio" required>
+                    <option value="">Seleccione un consultorio</option>
+                    <option th:each="consultorio : ${consultorios}"
+                            th:value="${consultorio.id}"
+                            th:text="'Consultorio ' + ${consultorio.noConsultorio} + ' (Piso ' + ${consultorio.piso} + ')'">
+                    </option>
+                </select>
+            </div>
+
+            <!-- Doctor -->
+            <div class="mb-3">
+                <label for="doctor" class="form-label">Doctor</label>
+                <select class="form-select" id="doctor" required>
+                    <option value="">Seleccione un doctor</option>
+                    <option th:each="doctor : ${doctores}"
+                            th:value="${doctor.id}"
+                            th:text="${doctor.nombre} + ' ' + ${doctor.apellidoPaterno} + ' - ' + ${doctor.especialidad}">
+                    </option>
+                </select>
+            </div>
+
+            <!-- Horario -->
+            <div class="mb-3">
+                <label for="hora" class="form-label">Fecha y Hora</label>
+                <input type="datetime-local" class="form-control" id="hora" required>
+            </div>
+
+            <!-- Nombre del Paciente -->
+            <div class="mb-3">
+                <label for="nombrePaciente" class="form-label">Nombre del Paciente</label>
+                <input type="text" class="form-control" id="nombrePaciente" required>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a href="/citas/crear" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">Agendar Cita</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.getElementById('citaForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const citaData = {
+            consultorio: { id: document.getElementById('consultorio').value },
+            doctor: { id: document.getElementById('doctor').value },
+            hora: document.getElementById('hora').value,
+            nombrePaciente: document.getElementById('nombrePaciente').value
+        };
+
+        fetch('/api/citas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(citaData)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw {
+                            message: err.message,
+                        }
+                     });
+                }
+                return response.json();
+            })
+            .then(data => {
+                showAlert('Cita agendada exitosamente', 'success');
+                // Redirigir después de 2 segundos
+                setTimeout(() => window.location.href = '/citas/crear', 2000);
+            })
+            .catch(error => {
+                showAlert(error.message || 'Error al agendar la cita', 'danger');
+            });
+    });
+
+    function showAlert(message, type) {
+        const alertContainer = document.getElementById('alertContainer');
+        alertContainer.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+    }
+</script>
+</body>
+</html>
