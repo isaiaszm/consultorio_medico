@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -69,10 +70,12 @@ public class CitaServiceImpl implements CitaService {
 
         if (!citasDisponibles.isEmpty()) {
             throw new APIException(
-                    String.format("El Dr. %s %s ya tiene una cita programada a las %s",
+                    String.format("El Dr. %s %s ya tiene una cita programada para el %s a las %s",
                             doctor.getNombre(),
                             doctor.getApellidoPaterno(),
-                            cita.getHora()));
+                            cita.getHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                            cita.getHora().format(DateTimeFormatter.ofPattern("HH:mm"))
+                    ));
         }
     }
     private void disponibilidadPaciente(Cita cita) {
@@ -90,15 +93,21 @@ public class CitaServiceImpl implements CitaService {
 
             if (horaCita.equals(horaExistente)) {
                 throw new APIException(
-                        String.format("El paciente %s ya tiene una cita programada a las %s",
-                                nombrePaciente, horaExistente));
+                        String.format("El paciente %s ya tiene una cita programada para el %s a las %s",
+                                nombrePaciente,
+                                horaExistente.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                                horaExistente.format(DateTimeFormatter.ofPattern("HH:mm"))
+                                ));
             }
 
             long horasDiferencia = Math.abs(horaCita.until(horaExistente, ChronoUnit.HOURS));
             if (horasDiferencia < MIN_HORAS_ENTRE_CITAS) {
                 throw new APIException(
-                        String.format("El paciente %s necesita %d horas entre citas. Cita existente a las %s",
-                                nombrePaciente, MIN_HORAS_ENTRE_CITAS, horaExistente));
+                        String.format("El paciente %s necesita %d horas entre citas. Cita existente para el %s a las %s",
+                                nombrePaciente, MIN_HORAS_ENTRE_CITAS,
+                                horaExistente.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                                horaExistente.format(DateTimeFormatter.ofPattern("HH:mm"))
+                        ));
             }
         });
     }
@@ -109,9 +118,10 @@ public class CitaServiceImpl implements CitaService {
         if (!citasMismoHorario.isEmpty()) {
             Consultorio consultorio = consultorioRespository.findById(cita.getConsultorio().getId());
             throw new APIException(
-                    String.format("El consultorio %d ya tiene una cita programada a las %s",
+                    String.format("El consultorio %d ya tiene una cita programada para el %s a las %s",
                             consultorio.getNoConsultorio(),
-                            cita.getHora()));
+                            cita.getHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                            cita.getHora().format(DateTimeFormatter.ofPattern("HH:mm"))));
         }
     }
 }
