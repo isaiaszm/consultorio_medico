@@ -1,23 +1,22 @@
 package com.consultoriomedico.presentation.advice;
 
+import com.consultoriomedico.service.exception.APIResponse;
+import com.consultoriomedico.service.exception.APIException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.HashMap;
-import java.util.Map;
 
 @RestControllerAdvice
 public class GeneralException {
 
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<?> resourceNotFoundException(IllegalStateException e) {
-        Map<String, String> response = new HashMap<>();
+    @ExceptionHandler(APIException.class)
+    public ResponseEntity<?> resourceNotFoundException(APIException e) {
 
 
-            response.put("error", e.getMessage());
-
+        String message = e.getMessage();
+        APIResponse response = new APIResponse(message,false);
         return new ResponseEntity<>(response
                 , HttpStatus.BAD_REQUEST);
     }

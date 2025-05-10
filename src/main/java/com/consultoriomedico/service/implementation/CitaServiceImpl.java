@@ -5,6 +5,9 @@ import com.consultoriomedico.persistence.entity.Consultorio;
 import com.consultoriomedico.persistence.entity.Doctor;
 import com.consultoriomedico.persistence.repository.CitaRepository;
 
+import com.consultoriomedico.persistence.repository.ConsultorioRespository;
+import com.consultoriomedico.persistence.repository.DoctorRepository;
+import com.consultoriomedico.service.exception.APIException;
 import com.consultoriomedico.service.interfaces.CitaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,9 +20,14 @@ import java.util.List;
 //@RequiredArgsConstructor
 public class CitaServiceImpl implements CitaService {
     private final CitaRepository citaRepository;
+    private final DoctorRepository doctorRepository;
+    private final ConsultorioRespository consultorioRespository;
 
-    public CitaServiceImpl(CitaRepository citaRepository) {
+
+    public CitaServiceImpl(CitaRepository citaRepository, DoctorRepository doctorRepository, ConsultorioRespository consultorioRespository) {
         this.citaRepository = citaRepository;
+        this.doctorRepository = doctorRepository;
+        this.consultorioRespository = consultorioRespository;
     }
 
     private static final int MAX_CITAS_POR_DIA = 8;
@@ -39,7 +47,7 @@ public class CitaServiceImpl implements CitaService {
     private void disponibilidadDoctor(Cita cita) {
 
 
-        Doctor doctor = cita.getDoctor();
+        Doctor doctor = doctorRepository.findById(cita.getDoctor().getId());
         LocalDateTime horaCita = cita.getHora();
 
 
@@ -49,7 +57,7 @@ public class CitaServiceImpl implements CitaService {
                 horaCita.toLocalDate().atTime(23, 59, 59));
 
         if (citasDelDia >= MAX_CITAS_POR_DIA){
-            throw new IllegalStateException(
+            throw new APIException(
                     String.format("El Dr. %s %s ya tiene %d citas programadas para este día (máximo %d permitidas)",
                             doctor.getNombre(),
                             doctor.getApellidoPaterno(),
@@ -60,7 +68,7 @@ public class CitaServiceImpl implements CitaService {
                 .findByDoctorAndHora(cita.getDoctor(), cita.getHora());
 
         if (!citasDisponibles.isEmpty()) {
-            throw new IllegalStateException(
+            throw new APIException(
                     String.format("El Dr. %s %s ya tiene una cita programada a las %s",
                             doctor.getNombre(),
                             doctor.getApellidoPaterno(),
@@ -81,14 +89,14 @@ public class CitaServiceImpl implements CitaService {
             LocalDateTime horaExistente = citaExistente.getHora();
 
             if (horaCita.equals(horaExistente)) {
-                throw new IllegalStateException(
+                throw new APIException(
                         String.format("El paciente %s ya tiene una cita programada a las %s",
                                 nombrePaciente, horaExistente));
             }
 
             long horasDiferencia = Math.abs(horaCita.until(horaExistente, ChronoUnit.HOURS));
             if (horasDiferencia < MIN_HORAS_ENTRE_CITAS) {
-                throw new IllegalStateException(
+                throw new APIException(
                         String.format("El paciente %s necesita %d horas entre citas. Cita existente a las %s",
                                 nombrePaciente, MIN_HORAS_ENTRE_CITAS, horaExistente));
             }
@@ -99,10 +107,10 @@ public class CitaServiceImpl implements CitaService {
                 .findByConsultorioAndHora(cita.getConsultorio(), cita.getHora());
 
         if (!citasMismoHorario.isEmpty()) {
-            Consultorio consultorio = cita.getConsultorio();
-            throw new IllegalStateException(
+            Consultorio consultorio = consultorioRespository.findById(cita.getConsultorio().getId());
+            throw new APIException(
                     String.format("El consultorio %d ya tiene una cita programada a las %s",
-                            consultorio.getId(),
+                            consultorio.getNoConsultorio(),
                             cita.getHora()));
         }
     }
