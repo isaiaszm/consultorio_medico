@@ -21,11 +21,9 @@
 
         <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
 
-        <!-- Mensaje de error -->
         <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
         <form id="citaForm" action="#" th:action="@{/crearCita}" th:object="${cita}" method="post">
-            <!-- Consultorio -->
             <div class="mb-3">
                 <label for="consultorio" class="form-label">Consultorio</label>
                 <select class="form-select" th:field="*{consultorio}" id="consultorio" required>
@@ -37,7 +35,6 @@
                 </select>
             </div>
 
-            <!-- Doctor -->
             <div class="mb-3">
                 <label for="doctor" class="form-label">Doctor</label>
                 <select class="form-select" th:field="*{doctor}" id="doctor" required>
@@ -49,13 +46,11 @@
                 </select>
             </div>
 
-            <!-- Horario -->
             <div class="mb-3">
                 <label for="hora" class="form-label">Fecha y Hora</label>
                 <input type="datetime-local" th:field="*{hora}" class="form-control" id="hora" required>
             </div>
 
-            <!-- Nombre del Paciente -->
             <div class="mb-3">
                 <label for="nombrePaciente" class="form-label">Nombre del Paciente</label>
                 <input type="text" th:field="*{nombrePaciente}" class="form-control" id="nombrePaciente" required>
