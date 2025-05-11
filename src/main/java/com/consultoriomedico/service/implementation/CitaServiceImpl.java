@@ -9,7 +9,6 @@ import com.consultoriomedico.persistence.repository.ConsultorioRespository;
 import com.consultoriomedico.persistence.repository.DoctorRepository;
 import com.consultoriomedico.service.exception.APIException;
 import com.consultoriomedico.service.interfaces.CitaService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -34,8 +33,40 @@ public class CitaServiceImpl implements CitaService {
     private static final int MAX_CITAS_POR_DIA = 8;
     private static final int MIN_HORAS_ENTRE_CITAS = 2;
 
+
+    @Override
+    public List<Cita> listarCitas() {
+
+        return citaRepository.findAll();
+    }
+
+    @Override
+    public void eliminarCita(Long id) {
+
+        citaRepository.deleteById(id);
+    }
+
+    @Override
+    public Cita editarCita(Cita cita) {
+
+
+            disponibilidadConsultorio(cita);
+            disponibilidadPaciente(cita);
+            disponibilidadDoctor(cita);
+
+        return citaRepository.save(cita);
+    }
+
+    @Override
+    public Cita buscarCitaPorId(Long id) {
+
+        return citaRepository.findById(id).orElse(null);
+    }
+
     @Override
     public Cita crearCita(Cita cita) {
+
+
 
         disponibilidadConsultorio(cita);
         disponibilidadPaciente(cita);
@@ -44,6 +75,8 @@ public class CitaServiceImpl implements CitaService {
 
         return citaRepository.save(cita) ;
     }
+
+
 
     private void disponibilidadDoctor(Cita cita) {
 

@@ -14,7 +14,7 @@ public class Consultorio {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     private int noConsultorio;
     private int piso;
