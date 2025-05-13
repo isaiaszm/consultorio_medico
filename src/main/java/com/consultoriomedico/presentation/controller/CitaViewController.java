@@ -1,15 +1,21 @@
 package com.consultoriomedico.presentation.controller;
 
 import com.consultoriomedico.persistence.entity.Cita;
+import com.consultoriomedico.persistence.entity.Consultorio;
+import com.consultoriomedico.persistence.entity.Doctor;
 import com.consultoriomedico.persistence.repository.ConsultorioRespository;
 import com.consultoriomedico.persistence.repository.DoctorRepository;
 import com.consultoriomedico.service.exception.APIException;
 import com.consultoriomedico.service.interfaces.CitaService;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.time.LocalDate;
+import java.util.Date;
 
 @Controller
 //@RequiredArgsConstructor
@@ -26,8 +32,18 @@ public class CitaViewController {
     }
 
     @GetMapping("/")
-    public String listarCitas(Model model) {
-        model.addAttribute("citas", citaService.listarCitas());
+    public String listarCitas(@Param("fecha") LocalDate fecha,
+                              @Param("consultorio") Long consultorio,
+                              @Param("doctor") Long doctor, Model  model) {
+
+        System.out.println("DocId "+doctor);
+        System.out.println("ConsultorioId "+consultorio);
+        model.addAttribute("consultorios", consultorioRespository.findAll());
+        model.addAttribute("doctores", doctorRepository.findAll());
+        model.addAttribute("citas", citaService.listarCitas(fecha,consultorio,doctor));
+        model.addAttribute("fecha", fecha);
+        model.addAttribute("consultorio", consultorio);
+        model.addAttribute("doctor", doctor);
         return "index";
     }
 

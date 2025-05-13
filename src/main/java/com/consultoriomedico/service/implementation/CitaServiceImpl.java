@@ -11,9 +11,11 @@ import com.consultoriomedico.service.exception.APIException;
 import com.consultoriomedico.service.interfaces.CitaService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -35,7 +37,12 @@ public class CitaServiceImpl implements CitaService {
 
 
     @Override
-    public List<Cita> listarCitas() {
+    public List<Cita> listarCitas(LocalDate fecha, Long consultorio, Long doctor) {
+
+        if (fecha != null || consultorio != null || doctor != null) {
+            return citaRepository.listarCitas(fecha,consultorio,doctor);
+
+        }
 
         return citaRepository.findAll();
     }
