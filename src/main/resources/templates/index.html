@@ -30,7 +30,7 @@
             <i class="fas fa-calendar-alt me-2"></i>Citas Programadas
         </h2>
         <div>
-            <form class="form-inline mb-3" th:action="@{/}">
+            <form class="d-flex mb-3 justify-content-around" th:action="@{/}">
 
                 <div class="form-group">
                     <labe class="form-group">
@@ -62,8 +62,11 @@
                     </select>
                 </div>
 
-                <input type="submit" class="btn btn-primary mt-3" value="Buscar">
-                <a type="button" th:href="@{/}" class="btn btn-secondary mt-3">Limpiar</a>
+                <div class="align-self-center">
+                    <input type="submit" class="btn btn-primary mt-3" value="Buscar">
+                    <a type="button" th:href="@{/}" class="btn btn-secondary mt-3">Limpiar</a>
+                </div>
+
             </form>
 
         </div>
